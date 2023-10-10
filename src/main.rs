@@ -1,6 +1,8 @@
 use std::{fs::File, io::BufReader, path::PathBuf};
 
 use clap::Parser;
+use strum::EnumProperty;
+use tabled::{builder::Builder, settings::Style};
 
 #[derive(Debug, Parser)]
 #[command(version)]
@@ -15,5 +17,16 @@ fn main() {
 
 	let fi = pfi::identifier(&mut file).unwrap();
 
-	println!("{fi:#?}");
+	let mut table = Builder::new();
+
+	table.push_record(["Type", fi.as_ref()]);
+
+	if let Some(mime) = fi.get_str("Mime") {
+		table.push_record(["MIME", mime]);
+	}
+
+	println!(
+		"{}",
+		table.build().with(Style::modern())
+	);
 }

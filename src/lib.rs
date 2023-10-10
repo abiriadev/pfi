@@ -1,9 +1,19 @@
 use std::io::{self, BufRead};
 
-#[derive(Debug)]
+use strum::{AsRefStr, EnumIter, EnumProperty};
+
+#[derive(Debug, EnumIter, EnumProperty, AsRefStr)]
 pub enum FileIdentity {
+	#[strum(props(Mime = "text/plain", IsBinary = "N"))]
 	Text,
+
+	#[strum(
+		serialize = "Portable Network Graphics",
+		props(Mime = "image/png", IsBinary = "Y")
+	)]
 	PortableNetworkGraphics,
+
+	#[strum(props(IsBinary = "Y"))]
 	Unknown,
 }
 
