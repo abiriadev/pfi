@@ -1,5 +1,6 @@
 use std::io::{self, BufRead};
 
+#[derive(Debug)]
 pub enum FileIdentity {
 	Text,
 	PortableNetworkGraphics,
