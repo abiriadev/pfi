@@ -1,5 +1,6 @@
 use std::io::{self, BufRead};
 
+use byteorder::{ReadBytesExt, BE};
 use strum::{AsRefStr, EnumIter, EnumProperty};
 
 #[derive(Debug, EnumIter, EnumProperty, AsRefStr)]
@@ -11,7 +12,7 @@ pub enum FileIdentity {
 		serialize = "Portable Network Graphics",
 		props(Mime = "image/png", IsBinary = "Y")
 	)]
-	PortableNetworkGraphics,
+	PortableNetworkGraphics { width: u32, height: u32 },
 
 	#[strum(props(IsBinary = "Y"))]
 	Unknown,
@@ -24,7 +25,10 @@ pub fn identifier<T: BufRead>(data: &mut T) -> io::Result<FileIdentity> {
 	data.read_exact(&mut buf)?;
 
 	if buf[..4] == PORTABLE_NETWORK_GRAPHICS {
-		return Ok(FileIdentity::PortableNetworkGraphics);
+		let width = (&buf[16..20]).read_u32::<BE>()?;
+		let height = (&buf[20..24]).read_u32::<BE>()?;
+
+		return Ok(FileIdentity::PortableNetworkGraphics { width, height });
 	};
 
 	if buf.iter().all(u8::is_ascii) {
