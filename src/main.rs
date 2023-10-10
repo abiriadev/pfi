@@ -1,6 +1,7 @@
 use std::{fs::File, io::BufReader, path::PathBuf};
 
 use clap::Parser;
+use pfi::FileIdentity;
 use strum::EnumProperty;
 use tabled::{builder::Builder, settings::Style};
 
@@ -23,6 +24,11 @@ fn main() {
 
 	if let Some(mime) = fi.get_str("Mime") {
 		table.push_record(["MIME", mime]);
+	}
+
+	if let FileIdentity::PortableNetworkGraphics { width, height } = fi {
+		table.push_record(["Width", &width.to_string()]);
+		table.push_record(["Height", &height.to_string()]);
 	}
 
 	println!(
