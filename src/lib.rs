@@ -14,11 +14,21 @@ pub enum FileIdentity {
 	)]
 	PortableNetworkGraphics { width: u32, height: u32 },
 
+	#[strum(
+		serialize = "Java Class File",
+		props(Mime = "application/java-vm", IsBinary = "Y")
+	)]
+	JavaClassFile {
+		version_major: u16,
+		version_minor: u16,
+	},
+
 	#[strum(props(IsBinary = "Y"))]
 	Unknown,
 }
 
 static PORTABLE_NETWORK_GRAPHICS: [u8; 4] = [0x89, 0x50, 0x4E, 0x47];
+static JAVA_CLASS_FILE: [u8; 4] = [0xCA, 0xFE, 0xBA, 0xBE];
 
 pub fn identifier<T: BufRead>(data: &mut T) -> io::Result<FileIdentity> {
 	let mut buf = [0u8; 512];
@@ -30,6 +40,16 @@ pub fn identifier<T: BufRead>(data: &mut T) -> io::Result<FileIdentity> {
 
 		return Ok(FileIdentity::PortableNetworkGraphics { width, height });
 	};
+
+	if buf[..4] == JAVA_CLASS_FILE {
+		let version_minor = (&buf[4..6]).read_u16::<BE>()?;
+		let version_major = (&buf[6..8]).read_u16::<BE>()?;
+
+		return Ok(FileIdentity::JavaClassFile {
+			version_major,
+			version_minor,
+		});
+	}
 
 	if buf.iter().all(u8::is_ascii) {
 		return Ok(FileIdentity::Text);

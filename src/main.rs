@@ -31,6 +31,17 @@ fn main() {
 		table.push_record(["Height", &height.to_string()]);
 	}
 
+	if let FileIdentity::JavaClassFile {
+		version_major,
+		version_minor,
+	} = fi
+	{
+		table.push_record([
+			"Version",
+			&format!("{version_major}.{version_minor}"),
+		]);
+	}
+
 	println!(
 		"{}",
 		table.build().with(Style::modern())
