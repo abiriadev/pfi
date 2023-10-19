@@ -23,12 +23,19 @@ pub enum FileIdentity {
 		version_minor: u16,
 	},
 
+	#[strum(
+		serialize = "Portable Document Format",
+		props(Mime = "application/pdf")
+	)]
+	PortableDocumentFormat,
+
 	#[strum(props(IsBinary = "Y"))]
 	Unknown,
 }
 
 static PORTABLE_NETWORK_GRAPHICS: [u8; 4] = [0x89, 0x50, 0x4E, 0x47];
 static JAVA_CLASS_FILE: [u8; 4] = [0xCA, 0xFE, 0xBA, 0xBE];
+static PORTABLE_DOCUMENT_FORMAT: [u8; 5] = [0x25, 0x50, 0x44, 0x46, 0x2D];
 
 pub fn identifier<T: BufRead>(data: &mut T) -> io::Result<FileIdentity> {
 	let mut buf = [0u8; 512];
@@ -49,6 +56,10 @@ pub fn identifier<T: BufRead>(data: &mut T) -> io::Result<FileIdentity> {
 			version_major,
 			version_minor,
 		});
+	}
+
+	if buf[..5] == PORTABLE_DOCUMENT_FORMAT {
+		return Ok(FileIdentity::PortableDocumentFormat);
 	}
 
 	if buf.iter().all(u8::is_ascii) {
