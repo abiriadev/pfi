@@ -1,4 +1,7 @@
-use std::io::{self, BufRead};
+use std::{
+	io::{self, BufRead},
+	str::from_utf8,
+};
 
 use byteorder::{ReadBytesExt, BE};
 use strum::{AsRefStr, EnumIter, EnumProperty};
@@ -27,7 +30,7 @@ pub enum FileIdentity {
 		serialize = "Portable Document Format",
 		props(Mime = "application/pdf")
 	)]
-	PortableDocumentFormat,
+	PortableDocumentFormat { version: f64 },
 
 	#[strum(props(IsBinary = "Y"))]
 	Unknown,
@@ -59,7 +62,12 @@ pub fn identifier<T: BufRead>(data: &mut T) -> io::Result<FileIdentity> {
 	}
 
 	if buf[..5] == PORTABLE_DOCUMENT_FORMAT {
-		return Ok(FileIdentity::PortableDocumentFormat);
+		let version = from_utf8(&buf[5..8])
+			.unwrap()
+			.parse()
+			.unwrap();
+
+		return Ok(FileIdentity::PortableDocumentFormat { version });
 	}
 
 	if buf.iter().all(u8::is_ascii) {

@@ -42,6 +42,10 @@ fn main() {
 		]);
 	}
 
+	if let FileIdentity::PortableDocumentFormat { version } = fi {
+		table.push_record(["Version", &format!("{version}")]);
+	}
+
 	println!(
 		"{}",
 		table.build().with(Style::modern())
