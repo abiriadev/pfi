@@ -1,7 +1,7 @@
 # PFI: Pretty File Identifier
 
 ```sh
-$ fi ./image.png
+$ pfi ./image.png
 ┌────────┬───────────────────────────┐
 │ Type   │ Portable Network Graphics │
 ├────────┼───────────────────────────┤
